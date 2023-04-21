@@ -51,8 +51,8 @@ class Application(Frame):
 		print("The button in the Window was clicked.")
 
 root = Tk()
-root.title('This is a test window')
-root.geometry('800x400')
+root.title('Greenhouse GUI')
+root.geometry('400x100')
 
 app = Application(root)
 app.mainloop()
