@@ -11,44 +11,70 @@ class Application(Frame):
 		self.label1 = Label (self, text="Welcome to the Greenhouse!")
 		self.label1.grid(row=0, column=0, sticky=W)
 		
-		self.label1 = Label (self, text="Temperature: ")
-		self.label1.grid(row=2, column=0, sticky=W)
+		self.label2 = Label (self, text="Temperature: ")
+		self.label2.grid(row=2, column=0, sticky=W)
 
-		self.label1 = Label (self, text="Place Holder")
-		self.label1.grid(row=2, column=1, sticky=W)
+		self.label3 = Label (self, text="Place Holder")
+		self.label3.grid(row=2, column=1, sticky=W)
 
-		self.label1 = Label (self, text="Fan")
-		self.label1.grid(row=2, column=2, sticky=W)
+		self.label4 = Label (self, text="Fan")
+		self.label4.grid(row=2, column=2, sticky=W)
 
-		self.button1 = Button (self, text="On/Off", command=self.display)
+		self.button1 = Button (self, text="Off",bg="red", command=self.btn1)
 		self.button1.grid(row=2, column=3, sticky=W)
 
-		self.label1 = Label (self, text="Humidity: ")
-		self.label1.grid(row=3, column=0, sticky=W)
+		self.label5 = Label (self, text="Humidity: ")
+		self.label5.grid(row=3, column=0, sticky=W)
 
-		self.label1 = Label (self, text="Place Holder")
-		self.label1.grid(row=3, column=1, sticky=W)
+		self.label6 = Label (self, text="Place Holder")
+		self.label6.grid(row=3, column=1, sticky=W)
 
-		self.label1 = Label (self, text="Watering System")
-		self.label1.grid(row=3, column=2, sticky=W)
+		self.label7 = Label (self, text="Watering System")
+		self.label7.grid(row=3, column=2, sticky=W)
 
-		self.button1 = Button (self, text="On/Off", command=self.display)
-		self.button1.grid(row=3, column=3, sticky=W)
+		self.button2 = Button (self, text="Off",bg="red", command=self.btn2)
+		self.button2.grid(row=3, column=3, sticky=W)
 
-		self.label1 = Label (self, text="Light: ")
-		self.label1.grid(row=4, column=0, sticky=W)
+		self.label8 = Label (self, text="Light: ")
+		self.label8.grid(row=4, column=0, sticky=W)
 
-		self.label1 = Label (self, text="Place Holder")
-		self.label1.grid(row=4, column=1, sticky=W)
+		self.label9 = Label (self, text="Place Holder")
+		self.label9.grid(row=4, column=1, sticky=W)
 
-		self.label1 = Label (self, text="Lighting System")
-		self.label1.grid(row=4, column=2, sticky=W)
+		self.label10 = Label (self, text="Lighting System")
+		self.label10.grid(row=4, column=2, sticky=W)
 
-		self.button1 = Button (self, text="On/Off", command=self.display)
-		self.button1.grid(row=4, column=3, sticky=W)
+		self.button3 = Button (self, text="Off",bg="red", command=self.btn3)
+		self.button3.grid(row=4, column=3, sticky=W)
 
 	def display(self):
-		print("The button in the Window was clicked.")
+		print("Click!")
+
+	def btn1(self):
+		if self.button1["bg"] == "red":
+			self.button1["bg"] = "green"
+			self.button1.config(text="On")
+		else:
+			self.button1["bg"] = "red"
+			self.button1.config(text="Off")
+
+
+	def btn2(self):
+		if self.button2["bg"] == "red":
+			self.button2["bg"] = "green"
+			self.button2.config(text="On")
+		else:
+			self.button2["bg"] = "red"
+			self.button2.config(text="Off")
+
+	def btn3(self):
+		if self.button3["bg"] == "red":
+			self.button3["bg"] = "green"
+			self.button3.config(text="On")
+		else:
+			self.button3["bg"] = "red"
+			self.button3.config(text="Off")
+		
 
 root = Tk()
 root.title('Greenhouse GUI')
