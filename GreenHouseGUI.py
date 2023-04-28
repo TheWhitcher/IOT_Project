@@ -1,16 +1,20 @@
 #!/usr/bin/python3
 from tkinter import *
+import soil_moisture_monitor
+import temperature_monitor
+import uv_light_monitor
+
 
 class Application(Frame):
 	def __init__(self, master):
 		super(Application, self).__init__(master)
 		self.grid()
 		self.create_widgets()
-		
+
 	def create_widgets(self):
 		self.label1 = Label (self, text="Welcome to the Greenhouse!")
 		self.label1.grid(row=0, column=0, sticky=W)
-		
+
 		self.label2 = Label (self, text="Temperature: ")
 		self.label2.grid(row=2, column=0, sticky=W)
 
@@ -58,7 +62,6 @@ class Application(Frame):
 			self.button1["bg"] = "red"
 			self.button1.config(text="Off")
 
-
 	def btn2(self):
 		if self.button2["bg"] == "red":
 			self.button2["bg"] = "green"
@@ -74,7 +77,24 @@ class Application(Frame):
 		else:
 			self.button3["bg"] = "red"
 			self.button3.config(text="Off")
-		
+
+def setup():
+	soil_moisture_monitor.setup()
+	temperature_monitor.setup()
+	uv_light_monitor.setup()
+
+def loop():
+	min_moisture = 50
+	min_temp = 27
+	min_uv = 50
+	soil_moisture_monitor.readSensor(min_moisture)
+	temperature_monitor.readSensor(min_temp)
+	uv_light_monitor.readSensor(min_uv)
+
+def destroy():
+	soil_moisture_monitor.destroy()
+	temperature_monitor.destroy()
+	uv_light_monitor.destroy()
 
 root = Tk()
 root.title('Greenhouse GUI')
@@ -82,3 +102,13 @@ root.geometry('400x100')
 
 app = Application(root)
 app.mainloop()
+
+if __name__ == '__main__':
+	setup()
+	try:
+		loop()
+	except KeyboardInterrupt:
+		destroy()
+		print ('The end !')
+	finally:
+		destroy()
