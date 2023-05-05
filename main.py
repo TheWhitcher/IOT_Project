@@ -1,4 +1,9 @@
-# Main GreenHouse Project
+# Name:     main.py
+# By:       Christophe Landry & Zacharyah Whitcher
+# Date:     2023-04-28
+# Version:  1.0
+
+# Imports
 from tkinter import *
 import os
 import GreenHouseGUI
@@ -6,16 +11,12 @@ import temperature_monitor
 import uv_light_monitor
 import soil_moisture_monitor
 import time
+import threading
 
-# Define what happens when the window is closed
-def on_closing():
-	# Send Ctrl+C signal to terminate the script
-	try:
-		print("GoodBye")
-		destroy()
-	finally:
-		os._exit(0)
-    
+# Global Variables
+water_cooldown = 0
+
+# Setup the Components
 def setup():
 	# Setup Sensors
 	soil_moisture_monitor.setup()
@@ -26,43 +27,87 @@ def setup():
 	global app
 	root=Tk()
 	root.title('Greenhouse GUI')
-	root.geometry('465x125')
+	root.geometry('430x170')
 	app = GreenHouseGUI.Application(root)
-	
-    # Bind the close event to the on_close() function	
-	root.protocol("WM_DELETE_WINDOW", on_closing)
 
+	# Default values
+	global max_temp
+	max_temp = float(app.tempMax.cget("text"))
+	
+	global min_temp
+	min_temp = float(app.tempMin.cget("text"))
+	
+	global max_moisture
+	max_moisture = float(app.soilMax.cget("text"))
+
+	global min_moisture
+	min_moisture = float(app.soilMin.cget("text"))
+
+	global max_uv
+	max_uv = float(app.uvMax.cget("text"))
+
+	global min_uv
+	min_uv = float(app.uvMin.cget("text"))	
+
+# Main Loop every 1 second
 def loop():
+	global water_cooldown
+	
+	# Main loop
 	while True:
-		# Default values
-		min_moisture = 50
-		min_temp = 27
-		min_uv = 50
-		
 		# Get Sensor readings
-		moisture = soil_moisture_monitor.readSensor(min_moisture)
-		temperature = temperature_monitor.readSensors(min_temp)
-		light = uv_light_monitor.readSensor(min_uv)
-		
-		# Update GUI Labels
-		app.tempRead.config(text=str(temperature))
-		app.humidRead.config(text=str(moisture))
-		app.lightRead.config(text=str(light))
-		
-		# Update GUI
-		app.update_idletasks()
-		app.update()
+		temperature = temperature_monitor.readSensors(max_temp, min_temp)
+		moisture = soil_moisture_monitor.readSensor(max_moisture, min_moisture)
+		light = uv_light_monitor.readSensor(max_uv, min_uv)
 		
 		print("Temp:" + str(temperature) + "  Humidity:" + str(moisture) + "   Light:" + str(light))
-            
-		time.sleep(1)
-	
+		
+		# Update GUI Labels
+		if isinstance(app, GreenHouseGUI.Application):
+			app.tempActual.config(text=str(temperature))
+			app.soilActual.config(text=str(moisture))
+			app.uvActual.config(text=str(light))
+
+			# Detemine GUI Label colors
+			actualFG(app.tempActual, temperature, max_temp, min_temp)
+			actualFG(app.soilActual, moisture, max_moisture, min_moisture)
+			actualFG(app.uvActual, light, max_uv, min_uv)
+
+			# Update GUI
+			app.update_idletasks()
+			app.update()
+
+			# Update values
+			max_temp = float(app.tempMax.cget("text"))
+			min_temp = float(app.tempMin.cget("text"))
+			max_moisture = float(app.soilMax.cget("text"))
+			min_moisture = float(app.soilMin.cget("text"))
+			max_uv = float(app.uvMax.cget("text"))
+			min_uv = float(app.uvMin.cget("text"))
+		
+		# Run the sprinkler for 10 seconds
+		if(moisture <= min_moisture and (time.monotonic() - water_cooldown) >= 60):
+			# Start a new thread to run the motor concurrently
+			t = threading.Thread(target=soil_moisture_monitor.RunMotor)
+			t.start()
+			water_cooldown = time.monotonic()
+			
+		time.sleep(0.5)
+
+# Change the foreground color of the Actual values
+def actualFG(label, value, max, min):
+	if ( value <= max and value >= min):
+		label.config(fg = "green")
+	else:
+		label.config(fg = "red")
+
+# Cleans up GPIO
 def destroy():
-	# Runs GPIO.cleanup
 	soil_moisture_monitor.destroy()
 	temperature_monitor.destroy()
 	uv_light_monitor.destroy()
 	
+# Main Program
 if __name__ == '__main__':
 	setup()
 try:

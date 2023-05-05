@@ -1,4 +1,9 @@
-#!/usr/bin/env python
+# Name:     temperature_monitor.py
+# By:       Christophe Landry & Zacharyah Whitcher
+# Date:     2023-04-28
+# Version:  1.0
+
+# Imports
 import os
 import time
 import RPi.GPIO as GPIO
@@ -14,13 +19,14 @@ import RPi.GPIO as GPIO
 # Fan Pins
 FAN = 17
 
+# Setup the Components
 def setup():
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(FAN, GPIO.OUT)
 	GPIO.output(FAN, GPIO.LOW)
 
-
-def readSensor(id, min_temp=27):
+# Read the sensor and return the results
+def readSensor(id, max_temp=30, min_temp=15):
 	tfile = open("/sys/bus/w1/devices/"+str(id)+"/w1_slave")
 	text = tfile.read()
 	tfile.close()
@@ -30,34 +36,30 @@ def readSensor(id, min_temp=27):
 	temperature = temperature / 1000
 	#print ("Sensor: " + str(id)  + " - Current temperature : %0.3f C" % temperature)
 	
-	if(temperature >= min_temp):
+	if(temperature >= max_temp):
 		GPIO.output(FAN, GPIO.HIGH)
-	else:
+	elif(temperature <= (max_temp + min_temp) / 2):
 		GPIO.output(FAN, GPIO.LOW)
 	return temperature
 
 
 # Reads temperature from all sensors found in /sys/bus/w1/devices/
 # starting with "28-...
-def readSensors(min_temp=27):
-
+def readSensors(max_temp=30, min_temp=15):
 	for file in os.listdir("/sys/bus/w1/devices/"):
 		if (file.startswith("28-")):
-			return readSensor(file, min_temp)
-
+			return readSensor(file, max_temp, min_temp)
 
 # read temperature every second for all connected sensors
 def loop():
 	while True:
 		readSensors(27)
-		time.sleep(1)
-		
 
 # Nothing to cleanup
 def destroy():
 	pass
 
-# Main starts here
+# Main Program
 if __name__ == "__main__":
 	setup()
 	try:

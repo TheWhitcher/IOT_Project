@@ -1,4 +1,9 @@
-#!/usr/bin/env python
+# Name:     uv_light_monitor.py
+# By:       Christophe Landry & Zacharyah Whitcher
+# Date:     2023-04-28
+# Version:  1.0
+
+# Imports
 import RPi.GPIO as GPIO
 import time
 
@@ -10,6 +15,7 @@ ADC_CS = 21
 ADC_CLK = 20
 ADC_DIO = 16
 
+# Setup the Components
 def setup():
 	GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BCM)
@@ -17,10 +23,12 @@ def setup():
 	GPIO.setup(ADC_CLK, GPIO.OUT)
 	GPIO.setup(LED, GPIO.OUT)
 
+# Clean up the GPIO
 def destroy():
 	GPIO.cleanup()
 
-def getResult():     # get ADC result
+# Calculate the results from the Sensor
+def getResult():
 	GPIO.setup(ADC_DIO, GPIO.OUT)
 	GPIO.output(ADC_CS, 0)
 	
@@ -61,7 +69,8 @@ def getResult():     # get ADC result
 	else:
 		return 0
 
-def readSensor(min_uv=50):
+# Read the sensor and return the results
+def readSensor(max_uv=100, min_uv=50):
 	res = getResult() - 80
 	if res < 0:
 		res = 0
@@ -69,17 +78,18 @@ def readSensor(min_uv=50):
 		res = 100
 	#print ('res = %d' % res)
 
-	if res < min_uv:
+	if (res <= (max_uv + min_uv) / 2):
 		GPIO.output(LED, GPIO.HIGH)
-	else:
+	elif (res > (max_uv + min_uv) / 2 ):
 		GPIO.output(LED, GPIO.LOW)
 	return res
 
+# Main loop every 0.5 seconds
 def loop():
 	while True:
 		readSensor(50)
-		time.sleep(0.5)
 
+# Main Program
 if __name__ == '__main__':
 	setup()
 	try:

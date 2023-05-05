@@ -1,4 +1,9 @@
-#!/usr/bin/env python
+# Name:     soil_moisture_monitor.py
+# By:       Christophe Landry & Zacharyah Whitcher
+# Date:     2023-04-28
+# Version:  1.0
+
+# Imports
 import RPi.GPIO as GPIO
 import time
 
@@ -11,6 +16,11 @@ ADC_CS = 24
 ADC_CLK = 23
 ADC_DIO = 18
 
+# Global Variables
+global motor_cooldown
+motor_cooldown = False
+
+# Setup the Components
 def setup():
 	GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BCM)
@@ -20,14 +30,17 @@ def setup():
 	GPIO.setup(MotorPin_B, GPIO.OUT)
 	motorStop()
 
+# Clean up the GPIO and stop the motor
 def destroy():
 	motorStop()
 	GPIO.cleanup()
 
+# Stop the motor
 def motorStop():
 	GPIO.output(MotorPin_A, GPIO.HIGH)
 	GPIO.output(MotorPin_B, GPIO.HIGH)
 
+# Calculate the results from the Sensor
 def getResult(): # ADC0832.py
 	GPIO.setup(ADC_DIO, GPIO.OUT)
 	GPIO.output(ADC_CS, 0)
@@ -69,6 +82,7 @@ def getResult(): # ADC0832.py
 	else:
 		return 0
 	
+# Turn motor on and off
 def motor(status, direction):
 	if status == 0: # stop
 		motorStop()
@@ -80,23 +94,31 @@ def motor(status, direction):
 			GPIO.output(MotorPin_A, GPIO.LOW)
 			GPIO.output(MotorPin_B, GPIO.HIGH)
 
-def readSensor(min_moisture=100):
+# Read the sensor and return the results
+def readSensor(max_moisture=100, min_moisture=50):
 	res = getResult()
 	moisture = 255 - res
 	#print ('analog value: %03d  moisture: %d' %(res, moisture))
 		
-	if(moisture < min_moisture):
-		motor(1,0)
-	elif(moisture > min_moisture):
-		motor(0,0)
-		
 	return moisture
-
+	
+# Run the Water Motor
+def RunMotor():
+	global motor_cooldown
+	
+	if(motor_cooldown != True):
+		motor_cooldown = True
+		motor(1,0)
+		time.sleep(10)
+		motor(0,0)
+		motor_cooldown = False
+		
+# Main loop every 0.5 seconds
 def loop():
 	while True:
 		readSensor(150)
-		time.sleep(0.5)
 
+# Main Program
 if __name__ == '__main__':
 	setup()
 	try:
