@@ -97,7 +97,8 @@ def motor(status, direction):
 # Read the sensor and return the results
 def readSensor(max_moisture=100, min_moisture=50):
 	res = getResult()
-	moisture = 255 - res
+	moisture = ((255 - res) / 255) * 100
+	moisture = round(moisture, 2)
 	#print ('analog value: %03d  moisture: %d' %(res, moisture))
 		
 	return moisture

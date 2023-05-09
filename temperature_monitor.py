@@ -34,6 +34,7 @@ def readSensor(id, max_temp=30, min_temp=15):
 	temperaturedata = secondline.split(" ")[9]
 	temperature = float(temperaturedata[2:])
 	temperature = temperature / 1000
+	temperature = round(temperature, 2)
 	#print ("Sensor: " + str(id)  + " - Current temperature : %0.3f C" % temperature)
 	
 	if(temperature >= max_temp):
