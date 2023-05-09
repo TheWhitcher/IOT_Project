@@ -32,7 +32,7 @@ def setup():
 
 # Clean up the GPIO and stop the motor
 def destroy():
-	motorStop()
+	#motorStop() #Not needed
 	GPIO.cleanup()
 
 # Stop the motor
