@@ -24,12 +24,17 @@ def setup():
 	uv_light_monitor.setup()
 	
 	# Setup GUI
+	def on_closing():
+		app.master.withdraw()
+        
 	global app
 	root=Tk()
 	root.title('Greenhouse GUI')
 	root.geometry('430x170')
 	app = GreenHouseGUI.Application(root)
-
+	
+	root.protocol("WM_DELETE_WINDOW", on_closing)
+	
 	# Default values
 	global max_temp
 	max_temp = float(app.tempMax.cget("text"))
@@ -39,19 +44,25 @@ def setup():
 	
 	global max_moisture
 	max_moisture = float(app.soilMax.cget("text"))
-
+	
 	global min_moisture
 	min_moisture = float(app.soilMin.cget("text"))
-
+	
 	global max_uv
 	max_uv = float(app.uvMax.cget("text"))
-
+	
 	global min_uv
-	min_uv = float(app.uvMin.cget("text"))	
-
+	min_uv = float(app.uvMin.cget("text"))
+	
 # Main Loop every 1 second
 def loop():
 	global water_cooldown
+	global max_temp
+	global min_temp
+	global max_moisture
+	global min_moisture
+	global max_uv
+	global min_uv
 	
 	# Main loop
 	while True:
@@ -59,31 +70,35 @@ def loop():
 		temperature = temperature_monitor.readSensors(max_temp, min_temp)
 		moisture = soil_moisture_monitor.readSensor(max_moisture, min_moisture)
 		light = uv_light_monitor.readSensor(max_uv, min_uv)
-		
-		print("Temp:" + str(temperature) + "  Humidity:" + str(moisture) + "   Light:" + str(light))
+		print("+-----------------------------------------------+")
+		print("| Type       Min      Max      Actual ")
+		print("| Temp	     " + str(min_temp) + "     " + str(max_temp) + "     " + str(temperature))
+		print("| Humidity   " + str(min_moisture) + "     " + str(max_moisture) + "     " + str(moisture))
+		print("| Light	     " + str(min_uv) + "     " + str(max_uv) + "    " + str(light))
+		print("+-----------------------------------------------+")
 		
 		# Update GUI Labels
-		if isinstance(app, GreenHouseGUI.Application):
-			app.tempActual.config(text=str(temperature))
-			app.soilActual.config(text=str(moisture))
-			app.uvActual.config(text=str(light))
-
-			# Detemine GUI Label colors
-			actualFG(app.tempActual, temperature, max_temp, min_temp)
-			actualFG(app.soilActual, moisture, max_moisture, min_moisture)
-			actualFG(app.uvActual, light, max_uv, min_uv)
-
-			# Update GUI
-			app.update_idletasks()
-			app.update()
-
-			# Update values
-			max_temp = float(app.tempMax.cget("text"))
-			min_temp = float(app.tempMin.cget("text"))
-			max_moisture = float(app.soilMax.cget("text"))
-			min_moisture = float(app.soilMin.cget("text"))
-			max_uv = float(app.uvMax.cget("text"))
-			min_uv = float(app.uvMin.cget("text"))
+		app.tempActual.config(text=str(temperature))
+		app.soilActual.config(text=str(moisture))
+		app.uvActual.config(text=str(light))
+		
+		# Detemine GUI Label colors
+		actualFG(app.tempActual, temperature, max_temp, min_temp)
+		actualFG(app.soilActual, moisture, max_moisture, min_moisture)
+		actualFG(app.uvActual, light, max_uv, min_uv)
+		
+		# Update GUI
+		app.update_idletasks()
+		app.update()
+		#app.mainloop()
+		
+		# Update values
+		max_temp = float(app.tempMax.cget("text"))
+		min_temp = float(app.tempMin.cget("text"))
+		max_moisture = float(app.soilMax.cget("text"))
+		min_moisture = float(app.soilMin.cget("text"))
+		max_uv = float(app.uvMax.cget("text"))
+		min_uv = float(app.uvMin.cget("text"))
 		
 		# Run the sprinkler for 10 seconds
 		if(moisture <= min_moisture and (time.monotonic() - water_cooldown) >= 60):
@@ -93,14 +108,14 @@ def loop():
 			water_cooldown = time.monotonic()
 			
 		time.sleep(0.5)
-
+		
 # Change the foreground color of the Actual values
 def actualFG(label, value, max, min):
 	if ( value <= max and value >= min):
 		label.config(fg = "green")
 	else:
 		label.config(fg = "red")
-
+		
 # Cleans up GPIO
 def destroy():
 	soil_moisture_monitor.destroy()

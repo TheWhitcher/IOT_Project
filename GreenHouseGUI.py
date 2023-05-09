@@ -12,7 +12,7 @@ class Application(Frame):
 		super(Application, self).__init__(master)
 		self.grid()
 		self.create_widgets()
-	
+		
 	# Creates all widgets on the GUI
 	def create_widgets(self):
 		# Labels
@@ -27,11 +27,11 @@ class Application(Frame):
 		self.minLabel = Label (self, text="Min", font='Helvetica 10 bold')
 		self.actualLabel = Label (self, text="Actual", font='Helvetica 10 bold')
 
-		self.tempMax = Label (self, text="27.0", font='Helvetica 10 bold')
+		self.tempMax = Label (self, text="22.0", font='Helvetica 10 bold')
 		self.soilMax = Label (self, text="90", font='Helvetica 10 bold')
 		self.uvMax = Label (self, text="100", font='Helvetica 10 bold')
 
-		self.tempMin = Label (self, text="24.0", font='Helvetica 10 bold')
+		self.tempMin = Label (self, text="21.0", font='Helvetica 10 bold')
 		self.soilMin = Label (self, text="70", font='Helvetica 10 bold')
 		self.uvMin = Label (self, text="30", font='Helvetica 10 bold')
 
@@ -141,9 +141,8 @@ class Application(Frame):
 		sMin.config(text = preset[3])
 		lMax.config(text = preset[4])
 		lMin.config(text = preset[5])
-
-
-## Create GUI for testing ##
+        
+# Create GUI for testing ##
 #root=Tk()
 #root.title('Greenhouse GUI')
 #root.geometry('465x210')
